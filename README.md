@@ -14,15 +14,15 @@ Resources to allow cross compiling WebKit2GTK+ for ARM.
 ## Instructions
 
 (1) First, create a directory to host the chroot, adjusting `/path/to/chroot` accordingly (e.g `/schroot/eos-master-armhf`):
-```bash
-$ sudo /usr/sbin/debootstrap \
+```console
+  $ sudo /usr/sbin/debootstrap \
     --arch amd64 \
     --components=main,universe \
     jammy /path/to/chroot http://uk.archive.ubuntu.com/ubuntu
 ```
 
 (2) Create a configuration file for the schroot tool, for example `/etc/schroot/chroot.d/jammy-amd64`, with the following contents (replacing `<username>`, `<group>`, and `/path/to/chroot` accordingly):
-```bash
+```ini
 [jammy-amd64]
 description=Ubuntu 64-bit chroot based on Jammy
 type=directory
@@ -42,14 +42,14 @@ setup.fstab=default/jammy-amd64.fstab
 IMPORTANT: the second column specifies the mount point **inside** the chroot, so it must be in sync with the path referenced from the CMake Toolchain file.
 
 (4) You should now be able to **enter the chroot** from your user session (sudo not required):
-```bash
+```console
   $ schroot -c jammy-amd64
 ```
 
 (5) From inside the chroot, **run the `bootstrap.sh` script as the root user** (or using sudo) provided with this repository to provision it with the tools you need to build Webkit, and then **copy the `armv7l-toolchain.cmake` file to some local path**, and you're good to go.
 
 (6) Next create a BUILD directory in `/path/to/your/WebKit` and configure the build (you might want to pass extra/different parameters, though) from inside the chroot:
-```bash
+```console
   $ mkdir /path/to/your/WebKit/BUILD && cd /path/to/your/WebKit/BUILD
   $ cmake -DCMAKE_TOOLCHAIN_FILE=/home/mario/work/webkit2gtk-ARM/armv7l-toolchain.cmake \
         -DPORT=GTK \
@@ -67,7 +67,7 @@ IMPORTANT: the second column specifies the mount point **inside** the chroot, so
 ```
 
 (7) Finally, from inside the chroot, build WebKit:
-```bash
+```console
   $ make VERBOSE=1 -j12    # Or anything else, this is just what I use
 ```
 
