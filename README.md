@@ -34,17 +34,18 @@ setup.copyfiles=default/copyfiles
 setup.fstab=default/jammy-amd64.fstab
 ```
 
-(3) Next you need to create the mentioned fstab file under `/etc/schroot/default` so that schroot can bind mount the path to the RootFS. To do that, create a copy of `/etc/schroot/default/fstab` (`sudo cp /etc/schroot/default/fstab /etc/schroot/default/jammy-amd64.fstab`), then add this line to its contents:
+(3) Next you need to create the mentioned fstab file under `/etc/schroot/default` so that schroot can bind mount the path to the RootFS. To do that, create a copy of `/etc/schroot/default/fstab` (`sudo cp /etc/schroot/default/fstab /etc/schroot/default/jammy-amd64.fstab`), then add this line to its contents, changing `/path/to/chroot` accordingly:
 ```bash
 # To crosscompile WebKitGTK
-/schroot/eos-master-armhf  /schroot/eos-master-armhf        none    rw,bind         0       0
+/path/to/chroot  /path/to/chroot        none    rw,bind         0       0
 ```
-IMPORTANT: the second column specifies the mount point **inside** the chroot, so it must be in sync with the path referenced from the CMake Toolchain file.
+IMPORTANT: the second column specifies the mount point **inside** the chroot, and it must be in sync with the path referenced in the CMake Toolchain file.
 
 (4) You should now be able to **enter the chroot** from your user session (sudo not required):
 ```
 $ schroot -c jammy-amd64
 ```
+NOTE: If you get a warning like `Failed to change to directory ‘/etc/schroot/default’: No such file or directory`, don't worry. As the warning suggests, the directory you were in before starting `schroot` doesn't exist inside the chroot. Chroots often have far fewer things installed, and running `schroot` without `--directory` attempts to chdir into the directory you were in before. You can confirm this by looking at the root directory (`ls -l /`). It should be nearly identical to your `/path/to/chroot`. The fstab change we made is what lets you see `/path/to/chroot` from inside the chroot.
 
 (5) From inside the chroot, **run the `bootstrap.sh` script as the root user** (or using sudo) provided with this repository to provision it with the tools you need to build Webkit, and then **copy the `armv7l-toolchain.cmake` file to some local path**, and you're good to go.
 
