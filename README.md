@@ -2,6 +2,7 @@
 
 Resources to allow cross compiling WebKit2GTK+ for ARM.
 
+
 ## Requirements
 
 * A host machine with lots of CPUs and RAM (16GB recommended)
@@ -10,6 +11,9 @@ Resources to allow cross compiling WebKit2GTK+ for ARM.
 * Packages to create and use the chroot: debootstrap, chroot and schroot
   - Debian/Ubuntu: `sudo apt-get install debootstrap schroot`
   - Fedora: `sudo dnf install debootstrap chroot schroot`
+ 
+NOTE: These instructions bootstrap a chroot with Ubuntu 22.04 LTS "Jammy Jellyfish". You can swap-out any mentions of `jammy` for other Ubuntu version names like `noble` for Ubuntu 24.04 LTS "Noble Numbat", but be aware you must update the tool version numbers inside `armv7l-toolchain.cmake` and `bootstrap.sh` as well. After step 4, you can use `sudo apt list "gcc*"` from inside the chroot to check what GCC version ships with your installed version of Ubuntu.
+
 
 ## Instructions
 
