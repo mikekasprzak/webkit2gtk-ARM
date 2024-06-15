@@ -9,45 +9,45 @@ Resources to allow cross compiling WebKit2GTK+ for ARM.
 * RootFS for the target device
   - You must adjust the path in the CMake Toolchain file accordingly (e.g `/schroot/eos-master-armhf`)
 * Packages to create and use the chroot: debootstrap, chroot and schroot
-  - Debian/Ubuntu: `sudo apt-get install debootstrap schroot`
+  - Debian/Ubuntu: `sudo apt-get install debootstrap coreutils schroot`
   - Fedora: `sudo dnf install debootstrap chroot schroot`
- 
-NOTE: These instructions bootstrap a chroot with Ubuntu 22.04 LTS "Jammy Jellyfish". You can swap-out any mentions of `jammy` for other Ubuntu version names like `noble` for Ubuntu 24.04 LTS "Noble Numbat", but be aware you must update the tool version numbers inside `armv7l-toolchain.cmake` and `bootstrap.sh` as well. After step 4, you can use `sudo apt list "gcc*"` from inside the chroot to check what GCC version ships with your installed version of Ubuntu.
+
+NOTE: These instructions bootstrap a chroot with Ubuntu 16.04 "Xenial Xerus" on your machine. Yes this version is no longer supported by Canonical, but it should still work.
 
 
 ## Instructions
 
-(1) First, create a directory to host the chroot, adjusting `/path/to/chroot` accordingly (e.g `/schroot/eos-master-armhf`):
+(1) First, use debootstrap to create a directory to host our chroot, adjusting `/path/to/chroot` accordingly (e.g `/schroot/eos-master-armhf`):
 ```
 $ sudo /usr/sbin/debootstrap \
-    --arch amd64 \
     --components=main,universe \
-    jammy /path/to/chroot http://uk.archive.ubuntu.com/ubuntu
+    xenial /path/to/chroot http://uk.archive.ubuntu.com/ubuntu
 ```
+NOTE: If this gets stuck at "Configuring keyboard-configuration...", try breaking out with CTRL+C and re-running the command.
 
-(2) Create a configuration file for the schroot tool, for example `/etc/schroot/chroot.d/jammy-amd64`, with the following contents (replacing `<username>`, `<group>`, and `/path/to/chroot` accordingly):
+(2) Create a configuration file for the schroot tool, for example `/etc/schroot/chroot.d/xenial-amd64`, with the following contents (replacing `<username>`, `<group>`, and `/path/to/chroot` accordingly):
 ```ini
-[jammy-amd64]
-description=Ubuntu 64-bit chroot based on Jammy
+[xenial-amd64]
+description=Ubuntu 64-bit chroot based on Xenial
 type=directory
 directory=/path/to/chroot
 users=<username>
 groups=<group>
 root-users=<username>
 setup.copyfiles=default/copyfiles
-setup.fstab=default/jammy-amd64.fstab
+setup.fstab=default/xenial-amd64.fstab
 ```
 
-(3) Next you need to create the mentioned fstab file under `/etc/schroot/default` so that schroot can bind mount the path to the RootFS. To do that, create a copy of `/etc/schroot/default/fstab` (`sudo cp /etc/schroot/default/fstab /etc/schroot/default/jammy-amd64.fstab`), then add this line to its contents, changing `/path/to/chroot` accordingly:
+(3) Next you need to create the mentioned fstab file under `/etc/schroot/default` so that schroot can bind mount the path to the RootFS. To do that, create a copy of `/etc/schroot/default/fstab` (`sudo cp /etc/schroot/default/fstab /etc/schroot/default/xenial-amd64.fstab`), then add this line to its contents, changing `/path/to/chroot` accordingly:
 ```bash
 # To crosscompile WebKitGTK
 /path/to/chroot  /path/to/chroot        none    rw,bind         0       0
 ```
-IMPORTANT: the second column specifies the mount point **inside** the chroot, and it must be in sync with the path referenced in the CMake Toolchain file.
+IMPORTANT: the second column specifies the mount point **inside** the chroot, and it must match the path referenced in the CMake Toolchain file.
 
 (4) You should now be able to **enter the chroot** from your user session (sudo not required):
 ```
-$ schroot -c jammy-amd64
+$ schroot -c xenial-amd64
 ```
 NOTE: If you get a warning like `Failed to change to directory ‘/etc/schroot/default’: No such file or directory`, don't worry. As the warning suggests, the directory you were in before starting `schroot` doesn't exist inside the chroot. Chroots often have far fewer things installed, and running `schroot` without `--directory` attempts to chdir into the directory you were in before. You can confirm this by looking at the root directory (`ls -l /`). It should be nearly identical to your `/path/to/chroot`. The fstab change we made is what lets you see `/path/to/chroot` from inside the chroot.
 
