@@ -20,8 +20,8 @@ NOTE: These instructions bootstrap a chroot with Ubuntu 16.04 "Xenial Xerus" on 
 (1) First, use debootstrap to create a directory to host our chroot, adjusting `/path/to/chroot` accordingly (e.g `/schroot/eos-master-armhf`):
 ```
 $ sudo /usr/sbin/debootstrap \
-    --components=main,universe \
-    xenial /path/to/chroot http://uk.archive.ubuntu.com/ubuntu
+       --components=main,universe \
+       xenial /path/to/chroot http://uk.archive.ubuntu.com/ubuntu
 ```
 NOTE: If this gets stuck at "Configuring keyboard-configuration...", try breaking out with CTRL+C and re-running the command.
 
