@@ -6,49 +6,49 @@ Resources to allow cross compiling WebKit2GTK+ for ARM.
 
 * A host machine with lots of CPUs and RAM (16GB recommended)
 * RootFS for the target device
-  - You need to adjust the path in the CMake Toolchain file accordingly (e.g /schroot/eos-master-armhf)
+  - You must adjust the path in the CMake Toolchain file accordingly (e.g `/schroot/eos-master-armhf`)
 * Packages to create and use the chroot: debootstrap, chroot and schroot
-  - Debian/Ubuntu: `sudo apt-get install debootstrap chroot schroot`
+  - Debian/Ubuntu: `sudo apt-get install debootstrap schroot`
   - Fedora: `sudo dnf install debootstrap chroot schroot`
 
 ## Instructions
 
-(1) First of all, create the chroot:
+(1) First, create a directory to host the chroot, adjusting `/path/to/chroot` accordingly (e.g `/schroot/eos-master-armhf`):
 ```
 $ sudo /usr/sbin/debootstrap \
     --arch amd64 \
     --components=main,universe \
-    xenial /path/to/chroot http://uk.archive.ubuntu.com/ubuntu
+    jammy /path/to/chroot http://uk.archive.ubuntu.com/ubuntu
 ```
 
-(2) Create a configuration file for schroot, for instance under `/etc/schroot/chroot.d/xenial-amd64`, with the following contents (replacing `<username>` and `<group>`):
+(2) Create a configuration file for the schroot tool, for example `/etc/schroot/chroot.d/jammy-amd64`, with the following contents (replacing `<username>`, `<group>`, and `/path/to/chroot` accordingly):
 ```
-[xenial-amd64]
-description=Ubuntu 64-bit chroot based on Xenial
+[jammy-amd64]
+description=Ubuntu 64-bit chroot based on Jammy
 type=directory
 directory=/path/to/chroot
 users=<username>
 groups=<group>
 root-users=<username>
 setup.copyfiles=default/copyfiles
-setup.fstab=default/xenial-amd64.fstab
+setup.fstab=default/jammy-amd64.fstab
 ```
 
-(3) Now you need to create that file under `/etc/schroot/default` so that you can tell schroot to bind mount the path to the RootFS when entering the chroot. To do that, create a copy of `/etc/schroot/default/fstab` (`sudo cp /etc/schroot/default/fstab/xenial-amd64.fstab`) and then add this line to its contents:
+(3) Next you need to create the mentioned fstab file under `/etc/schroot/default` so that schroot can bind mount the path to the RootFS. To do that, create a copy of `/etc/schroot/default/fstab` (`sudo cp /etc/schroot/default/fstab /etc/schroot/default/jammy-amd64.fstab`), then add this line to its contents:
 ```
 # To crosscompile WebKitGTK
 /schroot/eos-master-armhf  /schroot/eos-master-armhf        none    rw,bind         0       0
 ```
-...or whatever the path to the RootFS is. Just remember that the second column specifies the mount point **inside** the chroot, so it has to be on sync with the path referenced from the CMake Toolchain file.
+IMPORTANT: the second column specifies the mount point **inside** the chroot, so it must be in sync with the path referenced from the CMake Toolchain file.
 
-(4) You should be able to **enter the chroot** with your regular user session:
+(4) You should now be able to **enter the chroot** from your user session (sudo not required):
 ```
-  $ schroot -c xenial-amd64
+  $ schroot -c jammy-amd64
 ```
 
-(5) Finally, from inside the chroot, you can **run the `bootstrap.sh` script as the root user** (or using sudo) provided with this repository to provision it with the tools you need to build Webkit, and then **copy the `armv7l-toolchain.cmake` file to some local path**, and you're good to go.
+(5) From inside the chroot, **run the `bootstrap.sh` script as the root user** (or using sudo) provided with this repository to provision it with the tools you need to build Webkit, and then **copy the `armv7l-toolchain.cmake` file to some local path**, and you're good to go.
 
-(6) Now create a BUILD directory in `/path/to/your/WebKit` and configure the build (you might want to pass extra/different parameters, though) from inside the chroot:
+(6) Next create a BUILD directory in `/path/to/your/WebKit` and configure the build (you might want to pass extra/different parameters, though) from inside the chroot:
 ```
   $ mkdir /path/to/your/WebKit/BUILD && cd /path/to/your/WebKit/BUILD
   $ cmake -DCMAKE_TOOLCHAIN_FILE=/home/mario/work/webkit2gtk-ARM/armv7l-toolchain.cmake \
@@ -66,11 +66,11 @@ setup.fstab=default/xenial-amd64.fstab
         /path/to/your/WebKit
 ```
 
-(7) Finally, and still from inside the chroot, build the thing:
+(7) Finally, from inside the chroot, build WebKit:
 ```
   $ make VERBOSE=1 -j12    # Or anything else, this is just what I use
 ```
 
-And that should be all. Now you should be able to copy the relevant files over to the target machine and use your cross-compiled WebKit build.
+And that should be all. You now should be able to copy the output files over to the target machine and run your cross-compiled WebKit build.
 
 Enjoy!
