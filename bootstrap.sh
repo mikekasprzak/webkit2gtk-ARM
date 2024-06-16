@@ -17,20 +17,20 @@ apt-get install -y --assume-yes \
         debhelper \
         flex \
         gawk \
-        gcc-4.9-base \
+        gcc-11-base \
         gperf \
-        libasan1 \
-        libgcc-4.9-dev \
-        libstdc++-4.9-dev \
+        libasan8 \
+        libgcc-11-dev \
+        libstdc++-11-dev \
         pkg-config \
         ruby
 
 # Cross compiler:
 apt-get install -y --assume-yes \
-        cpp-4.9-arm-linux-gnueabihf \
-        g++-4.9-arm-linux-gnueabihf \
-        gcc-4.9-arm-linux-gnueabihf \
-        gcc-4.9-arm-linux-gnueabihf-base \
-        libasan1-armhf-cross \
-        libgcc-4.9-dev-armhf-cross \
-        libstdc++-4.9-dev-armhf-cross
+        cpp-11-arm-linux-gnueabihf \
+        g++-11-arm-linux-gnueabihf \
+        gcc-11-arm-linux-gnueabihf \
+        gcc-11-arm-linux-gnueabihf-base \
+        libasan8-armhf-cross \
+        libgcc-11-dev-armhf-cross \
+        libstdc++-11-dev-armhf-cross

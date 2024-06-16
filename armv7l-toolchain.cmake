@@ -34,7 +34,7 @@
 #        $ make VERBOSE=1 -j12    # Or anything else, this is just what I use
 
 # Path to the target RootFS (adjust as needed)
-SET(ROOTFS "/schroot/eos-master-armhf")
+SET(ROOTFS "/schroot/jammy-armhf")
 
 SET(MULTIARCH "arm-linux-gnueabihf")
 
@@ -43,8 +43,8 @@ SET(CMAKE_SYSTEM_NAME "Linux")
 SET(CMAKE_SYSTEM_PROCESSOR "armv7l")
 
 # Specify the cross compilers
-SET(CMAKE_C_COMPILER /usr/bin/${MULTIARCH}-gcc-4.9)
-SET(CMAKE_CXX_COMPILER /usr/bin/${MULTIARCH}-g++-4.9)
+SET(CMAKE_C_COMPILER /usr/bin/${MULTIARCH}-gcc-11)
+SET(CMAKE_CXX_COMPILER /usr/bin/${MULTIARCH}-g++-11)
 
 # This is very important, so that we find the right headers and libraries
 # without explicitly listing the default include directories (e.g. JSC)
@@ -57,11 +57,29 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
+
+#SET(Cairo_LIBRARY "${ROOTFS}/usr/lib/arm-linux-gnueabihf")
+#SET(Cairo_INCLUDE_DIR "${$ROOTFS}/usr/include")
+
+# libgcrypt2-dev libgpg_error-dev
+#SET(LibGcrypt_LIBRARY "${ROOTFS}/usr/lib/arm-linux-gnueabihf")
+#SET(LibGcrypt_INCLUDE_DIR "${$ROOTFS}/usr/include")
+#SET(LibGcrypt_GpgError_LIBRARY "${ROOTFS}/usr/lib/arm-linux-gnueabihf")
+#SET(LibGcrypt_GpgError_INCLUDE_DIR "${$ROOTFS}/usr/include")
+
+# libtasn1-dev
+#SET(LIBTASN1_LIBRARIES "${ROOTFS}/usr/lib/arm-linux-gnueabihf")
+
+# libharfbuzz-dev
+#SET(HarfBuzz_INCLUDE_DIR "${$ROOTFS}/usr/include")
+#SET(HarfBuzz_VERSION "2.0.0")
+
 # Add include directories from the rootfs matching the current toolchain
 INCLUDE_DIRECTORIES(SYSTEM
   "${ROOTFS}/usr/include"
-  "${ROOTFS}/usr/include/c++/4.9"
-  "${ROOTFS}/usr/include/arm-linux-gnueabihf/c++/4.9"
+  "${ROOTFS}/usr/include/c++/11"
+  "${ROOTFS}/usr/include/arm-linux-gnueabihf"
+  "${ROOTFS}/usr/include/arm-linux-gnueabihf/c++/11"
   )
 
 # CMake does not pick CPPFLAGS, so we add it manually into CFLAGS and CXXFLAGS
